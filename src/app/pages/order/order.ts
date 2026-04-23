@@ -3,6 +3,7 @@ import { Header } from '../../header/header';
 import { DELIVERY_SIZES, DELIVERY_SPEEDS } from './order.config';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UpperCasePipe } from '@angular/common';
+import { DeliveryApi } from '../../services/delivery-api';
 
 
 declare var ymaps: any;
@@ -25,12 +26,12 @@ export class Order {
     public routeForm: FormGroup;
     public orderForm: FormGroup;
 
-    public orderId: any = signal(null);
+    public orderId: any = signal(null);         // будем хранить ответ от бэкенда(номер id)
     public calculationResult: any = signal(null);
 
 
 
-    constructor(private formBuilder: FormBuilder) {
+    constructor(private formBuilder: FormBuilder, private deliveryApi: DeliveryApi) {
       
         this.routeForm = this.formBuilder.group({ // routeForm форма Откуда и Куда
             from: ['', Validators.required],
@@ -47,6 +48,7 @@ export class Order {
     };
 
 
+    
     ngOnInit() {
         ymaps.ready(() => {
             this.map = new ymaps.Map('map', {
@@ -66,6 +68,7 @@ export class Order {
     public selectSize(size: string) {
         this.routeForm.controls['size'].setValue(size);
     };
+
 
 
     public selectSpeed(speed: string) {
@@ -114,7 +117,7 @@ export class Order {
                     duration = Math.ceil(duration - (duration * 0.30));
                 }
 
-                this.calculationResult.set({
+                this.calculationResult.set({ // записывем ответ в calculationResult
                     from,
                     to,
                     size,
@@ -158,14 +161,24 @@ export class Order {
         const trimmedPhone = (phone ?? '').trim();
         const trimmedComment = (comment ?? '').trim();
 
-        const payload = {
+        const payload = { // эти данные с бэкенда получим
             customer: {name: trimmedName, phone: trimmedPhone, comment: trimmedComment},
             calculation: calculation,
             createdAt: new Date().toISOString()
         };
 
-        console.log(payload);
-        this.orderId.set(1);
+
+        this.deliveryApi.createDelivery(payload).subscribe((response) => { // отправка запроса на создание заявки
+            if ('error' in response) {
+                alert(response.error);
+                return;
+            }
+
+            this.orderId.set(response.id);          //  id придет с бэкенда, его сохраним в orderId. 1801
+        });
+
+
+        
     };
     
 

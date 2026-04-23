@@ -9,24 +9,33 @@
   </div>
 
   <div class="main-content">
-    <div class="main-route" [formGroup]="routeForm"> <!--  [formGroup]="routeForm" связываем с формой routeForm -->
+    <div class="main-route" [formGroup]="routeForm">      <!--  [formGroup]="routeForm" связываем с формой routeForm -->
       <div class="main-block-title">Маршрут</div>
       <div class="main-fields">
         <div class="main-field" id="fromField">
           <div class="main-pin"></div>
-          <input id="from" placeholder="Откуда: начните вводить адрес" autocomplete="off" formControlName="from" /> <!-- добавили formControlName="from" -->
+          <input id="from" placeholder="Откуда: начните вводить адрес" autocomplete="off" formControlName="from" [attr.disabled]="!!orderId()" />   <!-- добавили formControlName="from"  и [attr.disabled]="!!orderId()" -->
           <div class="main-ac" id="fromAc" role="listbox" aria-label="Подсказки адресов"></div>
         </div>
 
+        @if (this.routeForm.get('from')?.invalid && (this.routeForm.get('from')?.dirty || this.routeForm.get('from')?.touched)) {     <!--  если поле не заполнено то выводим сообщение -->
+          <label for="from" class="input-error">Заполните поле Откуда</label>
+        }
+
         <div class="main-field" id="toField">
           <div class="main-pin"></div>
-          <input id="to" placeholder="Куда: начните вводить адрес" autocomplete="off" formControlName="to"  /> <!-- добавили formControlName="to" -->
+          <input id="to" placeholder="Куда: начните вводить адрес" autocomplete="off" formControlName="to" [attr.disabled]="!!orderId()" />    <!-- добавили formControlName="to" и [attr.disabled]="!!orderId()" -->
           <div class="main-ac" id="toAc" role="listbox" aria-label="Подсказки адресов"></div>
         </div>
+
+        @if (this.routeForm.get('to')?.invalid && (this.routeForm.get('to')?.dirty || this.routeForm.get('to')?.touched)) {
+          <label for="from" class="input-error">Заполните поле Куда</label>
+        }
+
       </div>
     </div>
 
-    <div class="main-package">
+    <div class="main-package" [style.display]="orderId() ? 'none' : null">    <!-- если orderId() есть, то style.display='none' иначе style.display='null' -->
       <div class="main-block-title">Размер посылки</div>
 
       <div class="main-sizes">
@@ -113,7 +122,7 @@
       </div>
     </div>
 
-    <div class="main-speed">
+    <div class="main-speed" [style.display]="orderId() ? 'none' : null">    <!-- если orderId() есть, то style.display='none' иначе style.display='null' -->
       <div class="main-block-title">Скорость доставки</div>
 
       <div class="main-speeds">
@@ -136,7 +145,7 @@
       </div>
     </div>
 
-    <div class="main-calculate-block">
+    <div class="main-calculate-block" [style.display]="orderId() ? 'none' : null">     <!-- если orderId() есть, то style.display='none' иначе style.display='null' -->
       <button id="calc" class="button calculate-button" type="button" [disabled]="routeForm.invalid" (click)="calculate()">Рассчитать</button> <!-- при клике на кнопку вызовется  наша функция calculate() -->
     </div>
 
@@ -161,13 +170,25 @@
           <div class="main-block-title">Контакты</div>
           <div class="order-fields">
             <div class="main-field">
-              <input id="customerName" placeholder="Ваше имя" autocomplete="off" formControlName="name" /> <!-- добавили formControlName="name" -->
+              <input id="customerName" placeholder="Ваше имя" autocomplete="off" formControlName="name" />      <!-- добавили formControlName="name" -->
             </div>
             <div class="main-field">
-              <input id="customerPhone" placeholder="Ваш телефон" autocomplete="off" inputmode="tel" formControlName="phone" /> <!-- добавили formControlName="phone" -->
+              <input id="customerPhone" placeholder="Ваш телефон" autocomplete="off" inputmode="tel" formControlName="phone" />       <!-- добавили formControlName="phone" -->
+            </div>
+
+            <div>
+              @if (this.orderForm.get('name')?.invalid && (this.orderForm.get('name')?.dirty || this.orderForm.get('name')?.touched)) {   <!--  если поле name не заполнено то выводим сообщение -->
+                  <label for="customerName" class="input-error">Заполните имя</label>
+              }
+            </div>
+            <div>
+              @if (this.orderForm.get('phone')?.invalid && (this.orderForm.get('phone')?.dirty || this.orderForm.get('phone')?.touched)) {       <!--  если поле  phone не заполнено то выводим сообщение -->
+                  <label for="customerName" class="input-error">Заполните телефон</label>
+              }
             </div>
           </div>
         </div>
+        
         <div class="main-block-info-row extra-info">
           <div class="main-block-title">Дополнительная информация</div>
           <div class="main-field textarea">
